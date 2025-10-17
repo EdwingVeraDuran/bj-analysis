@@ -110,6 +110,12 @@ else:
             else:
                 col_bank.metric("Bankrupt runs", "N/A")
 
+            total_profit = summary_df["profit"].sum() if "profit" in summary_df else 0
+            col_hands, col_wins, col_profit = st.columns(3)
+            col_hands.metric("Total hands", f"{int(total_hands)}")
+            col_wins.metric("Total wins", f"{int(total_wins)}")
+            col_profit.metric("Total profit", f"{total_profit:.0f}")
+
             if roi_values:
                 st.markdown("#### ROI distribution")
                 chart_df = pd.DataFrame({"ROI (%)": roi_values})
