@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 import argparse
+import json
 import random
 from datetime import datetime
 from pathlib import Path
@@ -35,6 +37,26 @@ def build_args():
     if args.runs < 1:
         p.error("--runs debe ser >= 1")
     return args
+
+
+def format_run_timestamp() -> str:
+    ts = datetime.now().strftime("%Y-%m-%d_%H-%M-%S.%f")
+    return ts[:-3]
+
+
+def resolve_output_base(csv_path: Path) -> Path:
+    return csv_path.parent if csv_path.suffix else csv_path
+
+
+def create_output_dir(base_path: Path, runs: int, timestamp: str) -> Path:
+    directory = base_path / f"{timestamp}_runs{runs}"
+    directory.mkdir(parents=True, exist_ok=False)
+    return directory
+
+
+def write_parameters(directory: Path, metadata: dict) -> None:
+    metadata_path = directory / "parameters.json"
+    metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
 
 def simulate_once(args, seed: int | None):
@@ -85,10 +107,25 @@ def main():
     args = build_args()
 
     base_csv_path = Path(args.csv_path)
-    output_base = base_csv_path.parent if base_csv_path.suffix else base_csv_path
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = output_base / f"{timestamp}_runs{args.runs}"
-    output_dir.mkdir(parents=True, exist_ok=False)
+    output_base = resolve_output_base(base_csv_path)
+    timestamp = format_run_timestamp()
+    output_dir = create_output_dir(output_base, args.runs, timestamp)
+
+    metadata = {
+        "generated_at": timestamp,
+        "runs": args.runs,
+        "parameters": {
+            "decks": args.decks,
+            "starting_balance": args.starting_balance,
+            "base_bet": args.base_bet,
+            "penetration": args.penetration,
+            "hit_soft_17": args.hit_soft_17,
+            "blackjack_payout": args.blackjack_payout,
+            "hands_per_run": args.simulations,
+            "rng_seed": args.rng_seed,
+        },
+    }
+    write_parameters(output_dir, metadata)
 
     summary_rows = []
 
