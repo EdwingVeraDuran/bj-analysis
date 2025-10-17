@@ -64,3 +64,25 @@ with st.form("create"):
             st.subheader("Summary")
             st.dataframe(summary_rows, width="stretch")
             st.caption(f"Summary CSV saved at `{output_dir / 'summary.csv'}`")
+
+st.markdown("---")
+st.subheader("Parameter guide")
+st.caption("Tune the knobs below to design the blackjack world you want to simulate.")
+parameter_cards = [
+    ("🎴", "# Decks", "How many decks are loaded into the shoe. More decks dilute counting edges and trigger shuffles less often."),
+    ("💰", "Starting balance", "Initial bankroll for the player. Make sure it comfortably covers the bet spread you plan to test."),
+    ("🎯", "Base bet", "Smallest wager the player makes. True-count multipliers scale from this stake, so raising it increases overall exposure."),
+    ("✨", "Blackjack payout", "Payout when the player hits blackjack. Most casinos offer 3:2 (1.5); anything smaller hurts profitability."),
+    ("🪄", "Penetration", "Share of the shoe dealt before a shuffle. Deeper penetration lets the count gain more predictive power."),
+    ("🃏", "Hands per simulation", "Number of hands played per run. Longer runs smooth variance and give clearer averages."),
+    ("📊", "Number of simulations", "How many independent runs to perform so you can compare distributions and aggregate results."),
+    ("🤖", "Dealer hit soft 17", "Whether the dealer draws on soft 17. When enabled the house edge rises, altering optimal play."),
+]
+
+for icon, title, description in parameter_cards:
+    icon_col, text_col = st.columns([0.12, 0.88])
+    with icon_col:
+        st.markdown(f"<div style='font-size:2rem; line-height:1;'>{icon}</div>", unsafe_allow_html=True)
+    with text_col:
+        st.markdown(f"**{title}**<br/><span style='color:#6c757d;'>{description}</span>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:0.3rem 0; opacity:0.15;'/>", unsafe_allow_html=True)
